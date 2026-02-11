@@ -1,34 +1,46 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Patch,
+} from '@nestjs/common';
+import {
+  ApiBody,
   ApiTags,
   ApiOperation,
   ApiParam,
+  ApiOkResponse,
   ApiCreatedResponse,
 } from '@nestjs/swagger';
 import { ChequeRo } from './dto/cheque.ro';
 import { CreateChequeDto } from './dto/create-cheque.dto';
 import { ChequeService } from './cheque.service';
+import { UpdateChequeDto } from './dto/update-cheque.dto';
+import { UpdateDateChequeDto } from './dto/update-date-cheque.dto';
 
 @ApiTags('Cheque')
 @Controller('cheque')
 export class ChequeController {
   constructor(private readonly chequeService: ChequeService) {}
 
-  @Post()
+  @Post('create')
   @ApiOperation({ summary: `Create cheque` })
   @ApiCreatedResponse({ type: ChequeRo })
   async create(@Body() createChequeDto: CreateChequeDto): Promise<ChequeRo> {
     return this.chequeService.createCheque(createChequeDto);
   }
 
-  @Get()
+  @Get('find')
   @ApiOperation({ summary: `Get all cheques` })
   @ApiCreatedResponse({ type: [ChequeRo] })
   async getAll(): Promise<ChequeRo[]> {
     return this.chequeService.getAllCheques();
   }
 
-  @Get(':id')
+  @Get('find/byId/:id')
   @ApiOperation({ summary: `Get cheque by ID` })
   @ApiParam({ name: 'id', type: 'string', description: 'Cheque ID' })
   @ApiCreatedResponse({ type: ChequeRo })
@@ -36,18 +48,31 @@ export class ChequeController {
     return this.chequeService.getChequeById(id);
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: `Update cheque by ID` })
-  @ApiParam({ name: 'id', type: 'string', description: 'Cheque ID' })
-  @ApiCreatedResponse({ type: ChequeRo })
+  @Patch('update/:id')
+  @ApiOperation({ summary: 'Update cheque by ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiBody({ type: UpdateChequeDto })
+  @ApiOkResponse({ type: ChequeRo })
   async updateById(
     @Param('id') id: string,
-    @Body() updateData: Partial<CreateChequeDto>,
+    @Body() updateChequeDto: UpdateChequeDto,
   ): Promise<ChequeRo> {
-    return this.chequeService.updateChequeById(id, updateData);
+    return this.chequeService.updateChequeById(id, updateChequeDto);
   }
 
-  @Delete(':id')
+  @Patch('update/date/:id')
+  @ApiOperation({ summary: 'Update Date cheque by ID and push old date to date history' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiBody({ type: UpdateDateChequeDto })
+  @ApiOkResponse({ type: ChequeRo })
+  async updateDateById(
+    @Param('id') id: string,
+    @Body() updateDateChequeDto: UpdateDateChequeDto,
+  ): Promise<ChequeRo> {
+    return this.chequeService.updateDateChequeById(id, updateDateChequeDto);
+  }
+
+  @Delete('delete:id')
   @ApiOperation({ summary: 'Delete cheque by ID' })
   @ApiParam({
     name: 'id',
