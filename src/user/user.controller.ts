@@ -14,21 +14,21 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post("create")
+  @Post('create')
   @ApiOperation({ summary: `Create user` })
   @ApiCreatedResponse({ type: UserRo })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserRo> {
     return this.userService.createUser(createUserDto);
   }
 
-  @Get("all")
+  @Get('find')
   @ApiOperation({ summary: `Get all users` })
   @ApiCreatedResponse({ type: [UserRo] })
   async getAllUsers(): Promise<UserRo[]> {
-    return this.userService.getAllUser();
+    return this.userService.getAllUsers();
   }
 
-  @Get(':id')
+  @Get('find/byId:id')
   @ApiOperation({ summary: `Get user by id` })
   @ApiParam({ name: 'id', type: 'string', description: 'User ID' })
   @ApiCreatedResponse({ type: UserRo })
@@ -36,7 +36,7 @@ export class UserController {
     return this.userService.getUserById(id);
   }
 
-  @Delete(':id')
+  @Delete('delete:id')
   @ApiOperation({ summary: `Delete user by id` })
   @ApiParam({ name: 'id', type: 'string', description: 'User ID' })
   async deleteUserById(@Param('id') id: string): Promise<void> {
