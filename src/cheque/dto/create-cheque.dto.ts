@@ -3,8 +3,8 @@ import {
   IsArray,
   IsBoolean,
   IsString,
-  IsNumber,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateChequeDto {
@@ -18,13 +18,13 @@ export class CreateChequeDto {
   customer: string;
 
   @ApiProperty({
-    example: '123456789',
+    example: "123456789", 
     required: true,
     description: 'cheque serial number',
   })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  serial: Number;
+  serial: string; 
 
   @ApiProperty({
     required: true,
@@ -40,24 +40,28 @@ export class CreateChequeDto {
     required: true,
     description: 'amount of cheque',
   })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  amount: number;
+  amount: string;
 
   @ApiProperty({
     example: false,
     required: true,
     default: false,
-    description: 'this show the cheqaue is paide or not ',
+    description: 'this show the cheque is paid or not',
   })
   @IsBoolean()
   @IsNotEmpty()
   status: boolean;
 
   @ApiProperty({
-    example: [String],
+    example: [],
     description: 'cheque payment dates',
+    required: false,
+    default: false,
   })
   @IsArray()
+  @IsOptional()
+  @IsString({ each: true }) 
   dateHistory: [string];
 }
