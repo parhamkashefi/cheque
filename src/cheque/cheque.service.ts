@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -11,6 +12,7 @@ import { ChequeRo } from './dto/cheque.ro';
 import { CreateChequeDto } from './dto/create-cheque.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateChequeDto } from './dto/update-cheque.dto';
+import { UpdateDateChequeDto } from './dto/update-date-cheque.dto';
 
 @Injectable()
 export class ChequeService {
@@ -36,7 +38,11 @@ export class ChequeService {
 
   async getAllCheques(): Promise<ChequeRo[]> {
     const docs = await this.chequeModel.find();
-    return docs.map((d) => plainToInstance(ChequeRo, d));
+    return docs.map((d) =>
+      plainToInstance(ChequeRo, d, {
+        excludeExtraneousValues: true,
+      }),
+    );
   }
 
   async getChequeById(id: string): Promise<ChequeRo> {
@@ -66,26 +72,71 @@ export class ChequeService {
 
   async updateChequeById(
     id: string,
-    updateData: UpdateChequeDto,
+    updateChequeDto: UpdateChequeDto,
   ): Promise<ChequeRo> {
-    const cheque = await this.chequeModel.findById(id);
+    try {
+      const cheque = await this.chequeModel.findOneAndUpdate(
+        { _id: id },
+        { $set: updateChequeDto },
+        { new: true },
+      );
 
-    if (!cheque) {
-      throw new NotFoundException('Cheque not found');
+      if (!cheque) {
+        throw new NotFoundException('کاربری یافت نشد!');
+      }
+
+      return plainToInstance(ChequeRo, cheque, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error: any) {
+      if (error?.name === 'MongoServerError' && error?.code === 11000) {
+        throw new UnprocessableEntityException({
+          message: `این ${Object.keys(error.keyValue)[0]} هم اکنون وجود دارد!`,
+        });
+      }
+
+      throw new BadRequestException(
+        'هنگام به روزرسانی کاربر خطایی روی داده است!',
+      );
     }
+  }
 
-    if (updateData.dueDate && updateData.dueDate !== cheque.dueDate) {
-      cheque.dateHistory = cheque.dateHistory || [];
-      cheque.dateHistory.push(cheque.dueDate);
+  async updateDateChequeById(
+    id: string,
+    updateDateChequeDto: UpdateDateChequeDto,
+  ): Promise<ChequeRo> {
+    try {
+      const currentCheque = await this.chequeModel.findById(id);
+
+      if (!currentCheque) {
+        throw new NotFoundException('چکی یافت نشد!');
+      }
+
+      if (currentCheque.dueDate === updateDateChequeDto.dueDate) {
+        return plainToInstance(ChequeRo, currentCheque, {
+          excludeExtraneousValues: true,
+        });
+      }
+
+      const updatedCheque = await this.chequeModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            dueDate: updateDateChequeDto.dueDate,
+          },
+          $push: {
+            dateHistory: currentCheque.dueDate,
+          },
+        },
+        { new: true },
+      );
+
+      return plainToInstance(ChequeRo, updatedCheque, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error: any) {
+      throw new BadRequestException('خطا در بروزرسانی تاریخ چک');
     }
-
-    Object.assign(cheque, updateData);
-
-    const saved = await cheque.save();
-
-    return plainToInstance(ChequeRo, saved.toObject(), {
-      excludeExtraneousValues: true,
-    });
   }
 
   async deleteChequeById(id: string): Promise<void> {
