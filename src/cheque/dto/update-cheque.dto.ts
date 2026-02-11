@@ -1,4 +1,45 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateChequeDto } from './create-cheque.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsString,
+  IsNotEmpty,
+} from 'class-validator';
 
-export class UpdateChequeDto extends PartialType(CreateChequeDto) {}
+export class UpdateChequeDto {
+  @ApiProperty({
+    example: 'ali',
+    required: true,
+    description: 'customer name',
+  })
+  @IsString()
+  @IsNotEmpty()
+  customer: string;
+
+  @ApiProperty({
+    example: "123456789", 
+    required: true,
+    description: 'cheque serial number',
+  })
+  @IsString()
+  @IsNotEmpty()
+  serial: string; 
+
+  @ApiProperty({
+    example: '10000000',
+    required: true,
+    description: 'amount of cheque',
+  })
+  @IsString()
+  @IsNotEmpty()
+  amount: string;
+
+  @ApiProperty({
+    example: false,
+    required: true,
+    default: false,
+    description: 'this show the cheque is paid or not',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  status: boolean;
+}
