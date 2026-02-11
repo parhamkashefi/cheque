@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class ChequeRo {
   @ApiProperty({
@@ -38,12 +38,14 @@ export class ChequeRo {
   status: boolean;
 
   @ApiProperty({
-    example: ['1404,01,01', '1404,01,02', '1404,01,03'],
+    example: [],
     description: 'cheque payment dates',
   })
   @Expose()
-  dateHistory: [string];
+  dateHistory: string[];
 
-  @ApiProperty({ required: false })
-  _id?: string;
+  @ApiProperty({ example: '676e342a2b2f4b8e1d9b09ef' })
+  @Expose({ name: '_id' })
+  @Type(() => String)
+  id: string;
 }
