@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class UserRo {
   @ApiProperty({
@@ -16,6 +16,7 @@ export class UserRo {
   @Expose()
   phoneNumber: String;
 
-  @ApiProperty({ required: false })
-  _id?: string;
-}
+  @ApiProperty({ example: '676e342a2b2f4b8e1d9b09ef' })
+  @Expose({ name: '_id' })
+  @Type(() => String)
+  id: string;}
