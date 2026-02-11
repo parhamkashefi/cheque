@@ -20,11 +20,15 @@ export class UserService {
       excludeExtraneousValues: true,
     });
   }
-
-  async getAllUser(): Promise<UserRo[]> {
-    const user = await this.userModel.find();
-    return user.map((d) => plainToInstance(UserRo, d));
+  async getAllUsers(): Promise<UserRo[]> {
+    const docs = await this.userModel.find();
+    return docs.map((d) =>
+      plainToInstance(UserRo, d, {
+        excludeExtraneousValues: true,
+      }),
+    );
   }
+
 
   async getUserById(id: string): Promise<UserRo> {
     if (!Types.ObjectId.isValid(id)) {
