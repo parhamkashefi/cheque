@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ChequeModule } from './cheque/cheque.module';
 import { UserModule } from './user/user.module';
 import { BotModule } from './bot/bot.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { BotModule } from './bot/bot.module';
     ChequeModule,
     UserModule,
     BotModule,
+    AuthModule,
   ],
 
   controllers: [],
