@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -14,12 +15,14 @@ import {
   ApiParam,
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ChequeRo } from './dto/cheque.ro';
 import { CreateChequeDto } from './dto/create-cheque.dto';
 import { ChequeService } from './cheque.service';
 import { UpdateChequeDto } from './dto/update-cheque.dto';
 import { UpdateDateChequeDto } from './dto/update-date-cheque.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Cheque')
 @Controller('cheque')
@@ -27,6 +30,8 @@ export class ChequeController {
   constructor(private readonly chequeService: ChequeService) {}
 
   @Post('create')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: `Create cheque` })
   @ApiCreatedResponse({ type: ChequeRo })
   async create(@Body() createChequeDto: CreateChequeDto): Promise<ChequeRo> {
@@ -34,6 +39,8 @@ export class ChequeController {
   }
 
   @Get('find')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: `Get all cheques` })
   @ApiCreatedResponse({ type: [ChequeRo] })
   async getAll(): Promise<ChequeRo[]> {
@@ -41,6 +48,8 @@ export class ChequeController {
   }
 
   @Get('find/byId/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: `Get cheque by ID` })
   @ApiParam({ name: 'id', type: 'string', description: 'Cheque ID' })
   @ApiCreatedResponse({ type: ChequeRo })
@@ -49,6 +58,8 @@ export class ChequeController {
   }
 
   @Patch('update/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update cheque by ID' })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateChequeDto })
@@ -61,7 +72,11 @@ export class ChequeController {
   }
 
   @Patch('update/date/:id')
-  @ApiOperation({ summary: 'Update Date cheque by ID and push old date to date history' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update Date cheque by ID and push old date to date history',
+  })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateDateChequeDto })
   @ApiOkResponse({ type: ChequeRo })
@@ -73,6 +88,8 @@ export class ChequeController {
   }
 
   @Delete('delete:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete cheque by ID' })
   @ApiParam({
     name: 'id',
