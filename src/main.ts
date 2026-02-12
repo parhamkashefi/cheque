@@ -10,6 +10,7 @@ async function bootstrap() {
     .setTitle('Cheque APIS')
     .setDescription('API for managing cheque')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
